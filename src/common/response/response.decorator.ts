@@ -13,38 +13,37 @@ export const ApiResponseDecorator = <TModel extends Type<any>>(
     properties: {
       status: {
         type: 'string',
-        enum: ['success', 'failed', 'error'],
+        enum: ['success', 'failed'],
+        description: 'Status operasi'
       },
       message: {
         type: 'string',
-      },
-      statusCode: {
-        type: 'number',
-      },
-      timestamp: {
-        type: 'string',
-        format: 'date-time',
-      },
-      path: {
-        type: 'string',
+        description: 'Pesan response'
       },
       ...(model && {
         data: isArray
           ? {
               type: 'array',
               items: { $ref: getSchemaPath(model) },
+              description: 'Array data response'
             }
-          : { $ref: getSchemaPath(model) },
+          : { 
+              $ref: getSchemaPath(model),
+              description: 'Data response'
+            },
       }),
       ...(isArray && {
-        meta: {
+        pagination: {
           type: 'object',
           properties: {
-            total: { type: 'number' },
-            page: { type: 'number' },
-            limit: { type: 'number' },
-            totalPages: { type: 'number' },
+            totalItems: { type: 'number', description: 'Total item' },
+            itemsPerPage: { type: 'number', description: 'Item per halaman' },
+            currentPage: { type: 'number', description: 'Halaman saat ini' },
+            totalPages: { type: 'number', description: 'Total halaman' },
+            nextPage: { type: 'number', nullable: true, description: 'Halaman selanjutnya' },
+            previousPage: { type: 'number', nullable: true, description: 'Halaman sebelumnya' },
           },
+          description: 'Informasi pagination'
         },
       }),
     },
@@ -90,22 +89,12 @@ export const ApiBadRequestResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string' },
-        statusCode: { type: 'number', example: 400 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
-        errors: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              field: { type: 'string' },
-              message: { type: 'string' },
-              code: { type: 'string' },
-            },
-          },
-        },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 400, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -117,11 +106,12 @@ export const ApiUnauthorizedResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string', example: 'Unauthorized access' },
-        statusCode: { type: 'number', example: 401 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Unauthorized access', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 401, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -133,11 +123,12 @@ export const ApiForbiddenResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string', example: 'Access forbidden' },
-        statusCode: { type: 'number', example: 403 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Access forbidden', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 403, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -149,11 +140,12 @@ export const ApiNotFoundResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string', example: 'Resource not found' },
-        statusCode: { type: 'number', example: 404 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Resource not found', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 404, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -165,11 +157,12 @@ export const ApiConflictResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string', example: 'Resource conflict' },
-        statusCode: { type: 'number', example: 409 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Resource conflict', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 409, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -181,22 +174,12 @@ export const ApiValidationResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['failed'] },
-        message: { type: 'string', example: 'Validation failed' },
-        statusCode: { type: 'number', example: 422 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
-        errors: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              field: { type: 'string' },
-              message: { type: 'string' },
-              code: { type: 'string' },
-            },
-          },
-        },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Validation failed', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 422, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });
@@ -208,11 +191,12 @@ export const ApiInternalServerErrorResponse = () =>
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: ['error'] },
-        message: { type: 'string', example: 'Internal server error' },
-        statusCode: { type: 'number', example: 500 },
-        timestamp: { type: 'string', format: 'date-time' },
-        path: { type: 'string' },
+        status: { type: 'string', enum: ['failed'], description: 'Status operasi' },
+        message: { type: 'string', example: 'Internal server error', description: 'Pesan error' },
+        statusCode: { type: 'number', example: 500, description: 'Kode status HTTP' },
+        errorCode: { type: 'string', description: 'Kode error spesifik', nullable: true },
+        timestamp: { type: 'string', format: 'date-time', description: 'Waktu error terjadi' },
+        path: { type: 'string', description: 'Path endpoint yang error' },
       },
     },
   });

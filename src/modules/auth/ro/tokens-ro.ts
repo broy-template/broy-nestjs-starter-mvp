@@ -1,15 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { UserRO } from "../../../common/dto/user.dto";
-import { Type } from "class-transformer";
 
-export class AuthSessionRO {
-  @ApiProperty({
-    description: 'Data pengguna yang login',
-    type: UserRO
-  })
-  @Type(() => UserRO)
-  user: UserRO;
-
+export class TokensRO {
   @ApiProperty({
     description: 'Token akses untuk autentikasi',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'

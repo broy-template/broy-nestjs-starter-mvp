@@ -16,7 +16,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { UserRO } from 'src/common/dto/user.dto';
 import { AuthSessionRO } from './ro/auth-session.ro';
-import { TokensRO } from './ro/tokens-dto';
+import { TokensRO } from './ro/tokens-ro';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +51,7 @@ export class AuthService {
         id: true,
         email: true,
         role: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -68,17 +69,13 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: newUser.id }, data: { hashedRefreshToken: hashedRefreshToken } });
 
-    return SuccessResponse.single<AuthSessionRO>({
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        role: newUser.role,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt
-      },
+    const authSession = plainToInstance(AuthSessionRO, {
+      user: plainToInstance(UserRO, newUser),
       accessToken,
       refreshToken: hashedRefreshToken
-    }, 'Registrasi berhasil');
+    });
+
+    return SuccessResponse.single<AuthSessionRO>(authSession, 'Registrasi berhasil');
   }
 
   /**
@@ -116,20 +113,14 @@ export class AuthService {
       }
     });
     this.logger.log(`User login: ${user.email}`);
-    return SuccessResponse.single<AuthSessionRO>(
-      {
-        user: {
-          id: userDto.id,
-          email: userDto.email,
-          role: userDto.role,
-          createdAt: userDto.createdAt,
-          updatedAt: userDto.updatedAt
-        },
-        accessToken,
-        refreshToken: hashedRefreshToken
-      },
-      'Login berhasil'
-    );
+    
+    const authSession = plainToInstance(AuthSessionRO, {
+      user: plainToInstance(UserRO, userDto),
+      accessToken,
+      refreshToken: hashedRefreshToken
+    });
+
+    return SuccessResponse.single<AuthSessionRO>(authSession, 'Login berhasil');
   }
 
   /**
@@ -151,10 +142,13 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: user.id }, data: { hashedRefreshToken: hashedRefreshToken } });
     this.logger.log(`Token akses diperbarui untuk user: ${user.email}`);
-    return SuccessResponse.single<TokensRO>({
+    
+    const tokens = plainToInstance(TokensRO, {
       accessToken,
       refreshToken: hashedRefreshToken,
     });
+
+    return SuccessResponse.single<TokensRO>(tokens);
   }
 
   /**

@@ -25,11 +25,13 @@ import {
   ApiAuthResponses,
   ApiConflictResponse,
   ApiUnauthorizedResponse
-} from '../../common/interfaces';
+} from '../../common/response/response.decorator';
 import { UserRO } from '../../common/dto/user.dto';
 import { AuthSessionRO } from './ro/auth-session.ro';
+import { TokensRO } from './ro/tokens-ro';
 
 @ApiTags('Authentication')
+@ApiExtraModels(UserRO, AuthSessionRO, TokensRO)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -38,7 +40,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrasi pengguna baru' })
-  @ApiCreatedResponse('Pengguna berhasil didaftarkan')
+  @ApiCreatedResponse('Pengguna berhasil didaftarkan', AuthSessionRO)
   @ApiConflictResponse()
   @ApiAuthResponses()
   public async register(@Body() registerDto: RegisterDto) {
@@ -49,7 +51,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login pengguna' })
-  @ApiSuccessResponse('Login berhasil')
+  @ApiSuccessResponse('Login berhasil', AuthSessionRO)
   @ApiUnauthorizedResponse()
   @ApiAuthResponses()
   public async login(@Body() loginDto: LoginDto) {
@@ -61,7 +63,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh token akses' })
   @ApiBearerAuth()
-  @ApiSuccessResponse('Token berhasil diperbarui')
+  @ApiSuccessResponse('Token berhasil diperbarui', TokensRO)
   @ApiUnauthorizedResponse()
   @ApiAuthResponses()
   public async refresh(
