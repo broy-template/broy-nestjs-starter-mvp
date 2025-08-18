@@ -1,3 +1,6 @@
+import type { Role } from '@prisma/client';
+import { UserPayload } from '../entities/user-payload.entity';
+
 // JWT Payload interface
 export interface JwtPayload {
   email: string;
@@ -7,12 +10,10 @@ export interface JwtPayload {
   exp?: number;
 }
 
+
+
 export interface RequestWithUser extends Request {
-  user: {
-    id: string;
-    email: string;
-    role: string;
-  };
+  user: UserPayload;
 }
 
 // Export new response system

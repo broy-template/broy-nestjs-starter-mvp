@@ -34,17 +34,16 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
       select: {
         id: true,
         email: true,
-        name: true,
         role: true,
-        refreshToken: true,
+        hashedRefreshToken: true,
       },
     });
 
-    if (!user || !user.refreshToken) {
+    if (!user || !user.hashedRefreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshToken);
+    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -52,7 +51,6 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     return {
       id: user.id,
       email: user.email,
-      name: user.name,
       role: user.role,
     };
   }

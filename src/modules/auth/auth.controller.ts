@@ -10,6 +10,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -25,9 +26,11 @@ import {
   ApiConflictResponse,
   ApiUnauthorizedResponse
 } from '../../common/interfaces';
-import { UserEntity } from '../user/entities/user.entity';
+import { UserDto } from '../../common/dto/user.dto';
+import { AuthSessionDto } from './dto/auth-session.dto';
 
 @ApiTags('Authentication')
+@ApiExtraModels(AuthSessionDto, UserDto)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -35,34 +38,34 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiCreatedResponse('User registered successfully', UserEntity)
+  @ApiOperation({ summary: 'Registrasi pengguna baru' })
+  @ApiCreatedResponse('Pengguna berhasil didaftarkan', UserDto)
   @ApiConflictResponse()
   @ApiAuthResponses()
-  async register(@Body() registerDto: RegisterDto) {
+  public async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login user' })
-  @ApiSuccessResponse('Login successful')
+  @ApiOperation({ summary: 'Login pengguna' })
+  @ApiSuccessResponse('Login berhasil')
   @ApiUnauthorizedResponse()
   @ApiAuthResponses()
-  async login(@Body() loginDto: LoginDto) {
+  public async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @UseGuards(JwtRefreshAuthGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOperation({ summary: 'Refresh token akses' })
   @ApiBearerAuth()
-  @ApiSuccessResponse('Token refreshed successfully')
+  @ApiSuccessResponse('Token berhasil diperbarui')
   @ApiUnauthorizedResponse()
   @ApiAuthResponses()
-  async refresh(
+  public async refresh(
     @Body() refreshTokenDto: RefreshTokenDto,
     @CurrentUser() user: any,
   ) {
@@ -71,12 +74,24 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Logout user' })
+  @ApiOperation({ summary: 'Logout pengguna' })
   @ApiBearerAuth()
-  @ApiSuccessResponse('Logout successful')
+  @ApiSuccessResponse('Logout berhasil')
   @ApiUnauthorizedResponse()
   @ApiAuthResponses()
-  async logout(@CurrentUser() user: any) {
+  public async logout(@CurrentUser() user: any) {
     return this.authService.logout(user.id);
   }
+
+  @Post('delete')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Hapus akun pengguna' })
+  @ApiBearerAuth()
+  @ApiSuccessResponse('Akun berhasil dihapus')
+  @ApiUnauthorizedResponse()
+  @ApiAuthResponses()
+  public async delete(@CurrentUser() user: any) {
+    return this.authService.deleteAccount(user.id);
+  }
+
 }

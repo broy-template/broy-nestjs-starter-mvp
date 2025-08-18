@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Role } from "@prisma/client";
 import { IsEmail, IsEnum, IsUUID } from "class-validator";
-import { Role } from "src/common/enums/role.enum";
 
 
 export class UserDto {
@@ -12,16 +12,13 @@ export class UserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: "Nama lengkap pengguna", example: "John Doe" })
-  name: string;
-
   @ApiProperty({ enum: Role, description: "Peran pengguna dalam sistem", example: Role.USER })
   @IsEnum(Role)
   role: Role;
 
   @ApiProperty({ description: "Tanggal saat pengguna dibuat", type: String, format: "date-time", example: "2024-01-01T00:00:00.000Z" })
   createdAt: Date;
-
+  
   @ApiProperty({ description: "Tanggal saat pengguna terakhir diperbarui", type: String, format: "date-time", example: "2024-01-02T00:00:00.000Z" })
   updatedAt: Date;
 }

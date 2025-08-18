@@ -15,7 +15,6 @@ async function main() {
     update: {},
     create: {
       email: 'admin@starter.com',
-      name: 'System Administrator',
       password: hashedPassword,
       role: 'ADMIN',
     },
@@ -30,7 +29,6 @@ async function main() {
       update: {},
       create: {
         email: 'user1@starter.com',
-        name: 'John Doe',
         password: await bcrypt.hash('password123', 10),
         role: 'USER',
       },
@@ -40,7 +38,6 @@ async function main() {
       update: {},
       create: {
         email: 'user2@starter.com',
-        name: 'Jane Smith',
         password: await bcrypt.hash('password123', 10),
         role: 'USER',
       },

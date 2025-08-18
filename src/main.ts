@@ -24,6 +24,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
+import { PrismaClientExceptionFilter } from './common/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -69,6 +70,7 @@ async function bootstrap() {
 
   // Global filters
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new PrismaClientExceptionFilter());
 
   // Swagger documentation
   if (configService.get('app.nodeEnv') !== 'production') {

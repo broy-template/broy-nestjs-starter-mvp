@@ -8,7 +8,7 @@ CREATE TABLE "public"."users" (
     "name" TEXT,
     "password" TEXT NOT NULL,
     "role" "public"."Role" NOT NULL DEFAULT 'USER',
-    "refreshToken" TEXT,
+    "hashedRefreshToken" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

@@ -1,6 +1,5 @@
 import {
   Injectable,
-  ConflictException,
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
@@ -10,10 +9,14 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../common/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { 
-  JwtPayload, 
+import {
+  JwtPayload,
+  ServiceResponse,
 } from '../../common/interfaces';
-import { UserEntity } from '../user/entities/user.entity';
+import { plainToInstance } from 'class-transformer';
+import { UserDto } from 'src/common/dto/user.dto';
+import { AuthSessionDto } from './dto/auth-session.dto';
+import { TokensDto } from './dto/tokens-dto';
 
 @Injectable()
 export class AuthService {
@@ -23,61 +26,93 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
-  async register(registerDto: RegisterDto) {
-    const { email, password, name } = registerDto;
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
-    }
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await this.prisma.user.create({
-        data: { email, name, password: hashedPassword, role: 'USER' },
-        select: { id: true, email: true, name: true, role: true, createdAt: true },
-      });
-      this.logger.log(`New user registered: ${user.email}`);
-      return new UserEntity(user);
-    } catch (error) {
-      this.logger.error(`Registration failed: ${error.message}`);
-      throw error;
-    }
+  // Di dalam AuthService
+  public async register(registerDto: RegisterDto) {
+    const { email, password } = registerDto;
+
+    // 1. Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 2. Langsung coba buat user baru
+    const newUser = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: 'USER',
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    this.logger.log(`New user registered: ${newUser.email}`);
+
+    // 3. Buat access token
+    const { accessToken, refreshToken } = await this.generateTokens({
+      email: newUser.email,
+      sub: newUser.id,
+      role: newUser.role,
+    });
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.prisma.user.update({ where: { id: newUser.id }, data: { hashedRefreshToken: hashedRefreshToken } });
+
+    return ServiceResponse.single(plainToInstance(AuthSessionDto, {
+      user: plainToInstance(UserDto, newUser),
+      accessToken,
+      refreshToken: hashedRefreshToken,
+    }),
+      'Registrasi berhasil'
+    );
   }
 
-  async login(loginDto: LoginDto) {
+  public async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-    try {
-      const user = await this.prisma.user.findUnique({ where: { email } });
-      if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const { accessToken, refreshToken } = await this.generateTokens({
-        email: user.email,
-        sub: user.id,
-        role: user.role,
-      });
-      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-      await this.prisma.user.update({ where: { id: user.id }, data: { refreshToken: hashedRefreshToken } });
-      this.logger.log(`User logged in: ${user.email}`);
-      return {
-        data: {
-          user: new UserEntity(user),
-          accessToken,
-          refreshToken,
-        },
-      };
-    } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`);
-      throw error;
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('Email atau password salah');
     }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Email atau password salah');
+    }
+    const { accessToken, refreshToken } = await this.generateTokens({
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    });
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const userDto = await this.prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        hashedRefreshToken: hashedRefreshToken
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    this.logger.log(`User logged in: ${user.email}`);
+    return ServiceResponse.single(plainToInstance(AuthSessionDto, {
+      user: plainToInstance(UserDto, userDto),
+      accessToken,
+      refreshToken,
+    }),
+      'Login berhasil'
+    );
   }
 
-  async refreshToken(userId: string) {
+  public async refreshToken(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, role: true },
@@ -91,15 +126,25 @@ export class AuthService {
       role: user.role,
     });
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.prisma.user.update({ where: { id: user.id }, data: { refreshToken: hashedRefreshToken } });
+    await this.prisma.user.update({ where: { id: user.id }, data: { hashedRefreshToken: hashedRefreshToken } });
     this.logger.log(`Access token refreshed for user: ${user.email}`);
-    return { accessToken, refreshToken };
+    return ServiceResponse.single(plainToInstance(TokensDto, {
+      accessToken,
+      refreshToken,
+    }));
   }
 
-  async logout(userId: string) {
-    await this.prisma.user.update({ where: { id: userId }, data: { refreshToken: null } });
+  public async logout(userId: string) {
+    await this.prisma.user.update({ where: { id: userId }, data: { hashedRefreshToken: null } });
     this.logger.log(`User logged out: ${userId}`);
-    return null;
+    return ServiceResponse.null('Logout berhasil');
+  }
+
+  // delete account
+  public async deleteAccount(userId: string) {
+    await this.prisma.user.delete({ where: { id: userId } });
+    this.logger.log(`User account deleted: ${userId}`);
+    return ServiceResponse.null('Akun berhasil dihapus');
   }
 
   private async generateTokens(payload: JwtPayload) {

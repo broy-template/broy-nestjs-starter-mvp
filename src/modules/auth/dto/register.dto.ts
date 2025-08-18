@@ -11,15 +11,6 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    example: 'John Doe',
-    description: 'User full name',
-    required: false,
-  })
-  @IsString({ message: 'Name must be a string' })
-  @IsOptional()
-  name?: string;
-
-  @ApiProperty({
     example: 'password123',
     description: 'User password',
     minLength: 6,

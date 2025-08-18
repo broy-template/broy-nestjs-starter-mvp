@@ -8,19 +8,44 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid()) @map("id")
-  email        String   @unique @map("email")
-  name         String?  @map("name")
-  password     String   @map("password")
-  role         Role     @default(USER) @map("role")
-  refreshToken String?  @map("refresh_token")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String
+  status             UserStatus @default(ACTIVE)
+  role               Role     @default(USER)
+  hashedRefreshToken String?  @unique @map("hashed_refresh_token")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relasi one-to-one ke UserProfile
+  profile UserProfile?
 
   @@map("users")
+}
+
+model UserProfile {
+  id          String    @id @default(uuid())
+  firstName   String?   @map("first_name")
+  lastName    String?   @map("last_name")
+  bio         String?
+  avatarUrl   String?   @map("avatar_url")
+  phoneNumber String?   @unique @map("phone_number")
+  birthDate   DateTime? @map("birth_date")
+
+  // Kunci untuk relasi one-to-one
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("user_profiles")
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
 }

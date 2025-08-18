@@ -45,7 +45,7 @@ export interface ApiErrorResponse {
 
 // Success response builder
 export class SuccessResponse {
-  static single<T>(data: T, message = 'Success'): ApiResponse<T> {
+  static single<T>(data: T, message = 'Berhasil'): ApiResponse<T> {
     return {
       status: ApiStatus.SUCCESS,
       message,
@@ -53,7 +53,7 @@ export class SuccessResponse {
     };
   }
 
-  static list<T>(data: T[], message = 'Success'): ApiResponse<T[]> {
+  static list<T>(data: T[], message = 'Berhasil'): ApiResponse<T[]> {
     return {
       status: ApiStatus.SUCCESS,
       message,
@@ -64,7 +64,7 @@ export class SuccessResponse {
   static paginated<T>(
     data: T[],
     pagination: PaginationInfo,
-    message = 'Success',
+    message = 'Berhasil',
   ): ApiResponse<T[]> {
     return {
       status: ApiStatus.SUCCESS,
@@ -74,7 +74,14 @@ export class SuccessResponse {
     };
   }
 
-  static deleted(message = 'Resource deleted successfully'): ApiResponse<null> {
+  static deleted(message = 'Data berhasil dihapus'): ApiResponse<null> {
+    return {
+      status: ApiStatus.SUCCESS,
+      message,
+    };
+  }
+
+  static null(message = 'Operasi berhasil'): ApiResponse<null> {
     return {
       status: ApiStatus.SUCCESS,
       message,
@@ -98,6 +105,46 @@ export class ErrorResponse {
       errorCode,
       timestamp,
       path,
+    };
+  }
+}
+
+export class ServiceResponse {
+  static single<T>(data: T, message = 'Berhasil'): IServiceResponse<T> {
+    return {
+      message,
+      data,
+    };
+  }
+
+  static list<T>(data: T[], message = 'Berhasil'): IServiceResponse<T[]> {
+    return {
+      message,
+      data,
+    };
+  }
+
+  static paginated<T>(
+    data: T[],
+    pagination: PaginationInfo,
+    message = 'Berhasil',
+  ): IServiceResponse<T[]> {
+    return {
+      message,
+      data,
+      pagination,
+    };
+  }
+
+  static deleted(message = 'Data berhasil dihapus'): IServiceResponse<null> {
+    return {
+      message,
+    };
+  }
+
+  static null(message = 'Operasi berhasil'): IServiceResponse<null> {
+    return {
+      message,
     };
   }
 }
