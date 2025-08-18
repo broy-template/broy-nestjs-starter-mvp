@@ -1,3 +1,19 @@
+/**
+ * File utama untuk bootstrap aplikasi NestJS.
+ *
+ * - Mengatur global prefix untuk semua endpoint API.
+ * - Mengaktifkan validasi global (class-validator).
+ * - Mendaftarkan global interceptor untuk logging, response formatting, dan serialization.
+ * - Mendaftarkan global exception filter untuk error handling standar.
+ * - Mengaktifkan Swagger (OpenAPI) untuk dokumentasi API otomatis.
+ * - Mengaktifkan Helmet untuk security headers.
+ * - Mengaktifkan rate limiting (Throttler).
+ *
+ * Semua response API akan diformat secara konsisten sesuai standar JSON API yang sudah disepakati,
+ * menggunakan GlobalResponseInterceptor dan AllExceptionsFilter.
+ *
+ * Untuk menambah/mengubah behavior global, lakukan di file ini.
+ */
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
@@ -7,6 +23,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -47,6 +64,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
     new ClassSerializerInterceptor(reflector),
+    new ResponseTransformInterceptor(),
   );
 
   // Global filters

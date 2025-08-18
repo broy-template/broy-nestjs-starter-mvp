@@ -14,7 +14,7 @@ export interface IApiResponse<T> {
 }
 
 @Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<IServiceResponse<T>, IApiResponse<T>> {
+export class ResponseTransformInterceptor<T> implements NestInterceptor<IServiceResponse<T>, IApiResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<IApiResponse<T>> {
     return next.handle().pipe(
       map((serviceResponse: IServiceResponse<T>) => {
