@@ -27,19 +27,6 @@ describe('AppController', () => {
           github: 'https://github.com/forscy',
           documentation: '/api/v1/docs',
           health: '/api/v1/health',
-          features: [
-            'JWT Authentication with Refresh Token',
-            'Role-Based Access Control (RBAC)',
-            'Prisma ORM with PostgreSQL',
-            'Comprehensive Error Handling',
-            'Request/Response Logging',
-            'Rate Limiting',
-            'Input Validation',
-            'Swagger Documentation',
-            'Security Headers (Helmet)',
-            'CORS Configuration',
-            'Health Check Endpoint',
-          ],
         },
       });
     });
