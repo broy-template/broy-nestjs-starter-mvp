@@ -1,0 +1,3 @@
+# UUID library untuk correlation IDs
+uuid = "^9.0.1"
+@types/uuid = "^9.0.7"
