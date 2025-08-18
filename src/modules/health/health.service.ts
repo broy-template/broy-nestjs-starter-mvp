@@ -8,7 +8,7 @@ export class HealthService {
 
   constructor(private prisma: PrismaService) {}
 
-  async check(): Promise<ApiResponse> {
+  async check() {
     const healthData = {
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -17,14 +17,8 @@ export class HealthService {
       environment: process.env.NODE_ENV || 'development',
       database: await this.checkDatabase(),
     };
-
     this.logger.log('Health check completed');
-
-    return {
-      status: 'success',
-      message: 'Application is healthy',
-      data: healthData,
-    };
+    return healthData;
   }
 
   private async checkDatabase(): Promise<{ status: string; latency?: number }> {

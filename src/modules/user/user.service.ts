@@ -10,7 +10,7 @@ import { PrismaService } from '../../common/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { ApiResponse, PaginationInfo } from '../../common/interfaces';
+import { ApiResponse, ApiStatus, PaginationInfo } from '../../common/interfaces';
 
 @Injectable()
 export class UserService {
@@ -46,7 +46,7 @@ export class UserService {
     this.logger.log(`New user created: ${user.email}`);
 
     return {
-      status: 'success',
+      status: ApiStatus.SUCCESS,
       message: 'User created successfully',
       data: new UserEntity(user),
     };
@@ -79,7 +79,7 @@ export class UserService {
     };
 
     return {
-      status: 'success',
+      status: ApiStatus.SUCCESS,
       message: 'Users retrieved successfully',
       data: users.map((user) => new UserEntity(user)),
       pagination,
@@ -96,7 +96,7 @@ export class UserService {
     }
 
     return {
-      status: 'success',
+      status: ApiStatus.SUCCESS,
       message: 'User retrieved successfully',
       data: new UserEntity(user),
     };
@@ -146,7 +146,7 @@ export class UserService {
     this.logger.log(`User updated: ${updatedUser.email}`);
 
     return {
-      status: 'success',
+      status: ApiStatus.SUCCESS,
       message: 'User updated successfully',
       data: new UserEntity(updatedUser),
     };
@@ -182,7 +182,7 @@ export class UserService {
     this.logger.log(`User deleted: ${user.email}`);
 
     return {
-      status: 'success',
+      status: ApiStatus.SUCCESS,
       message: 'User deleted successfully',
     };
   }

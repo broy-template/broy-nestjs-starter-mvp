@@ -1,23 +1,4 @@
-export interface ApiResponse<T = any> {
-  status: 'success' | 'failed';
-  message: string;
-  data?: T;
-  pagination?: PaginationInfo;
-  statusCode?: number;
-  errorCode?: string;
-  timestamp?: string;
-  path?: string;
-}
-
-export interface PaginationInfo {
-  totalItems: number;
-  itemsPerPage: number;
-  currentPage: number;
-  totalPages: number;
-  nextPage: number | null;
-  previousPage: number | null;
-}
-
+// JWT Payload interface
 export interface JwtPayload {
   email: string;
   sub: string;
@@ -33,3 +14,7 @@ export interface RequestWithUser extends Request {
     role: string;
   };
 }
+
+// Export new response system
+export * from '../response/api-response';
+export * from '../response/response.decorator';

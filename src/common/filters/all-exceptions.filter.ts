@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { ApiResponse } from '../interfaces';
+import { ApiStatus, ErrorResponse } from '../interfaces';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -41,8 +41,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.logger.error('Unexpected error:', exception);
     }
 
-    const errorResponse: ApiResponse = {
-      status: 'failed',
+    const errorResponse: ErrorResponse = {
+      status: ApiStatus.FAILED,
       message,
       statusCode: status,
       errorCode,
