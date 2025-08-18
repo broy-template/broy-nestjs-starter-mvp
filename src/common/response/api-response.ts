@@ -15,16 +15,6 @@ export interface PaginationInfo {
   previousPage: number | null;
 }
 
-
-/**
- * Interface utama untuk semua respons sukses dari service
- */
-export interface IServiceResponse<T = any> {
-  message: string;
-  data?: T;
-  pagination?: PaginationInfo;
-}
-
 // Base API Response interface (success)
 export interface ApiResponse<T = any> {
   status: ApiStatus.SUCCESS;
@@ -105,46 +95,6 @@ export class ErrorResponse {
       errorCode,
       timestamp,
       path,
-    };
-  }
-}
-
-export class ServiceResponse {
-  static single<T>(data: T, message = 'Berhasil'): IServiceResponse<T> {
-    return {
-      message,
-      data,
-    };
-  }
-
-  static list<T>(data: T[], message = 'Berhasil'): IServiceResponse<T[]> {
-    return {
-      message,
-      data,
-    };
-  }
-
-  static paginated<T>(
-    data: T[],
-    pagination: PaginationInfo,
-    message = 'Berhasil',
-  ): IServiceResponse<T[]> {
-    return {
-      message,
-      data,
-      pagination,
-    };
-  }
-
-  static deleted(message = 'Data berhasil dihapus'): IServiceResponse<null> {
-    return {
-      message,
-    };
-  }
-
-  static null(message = 'Operasi berhasil'): IServiceResponse<null> {
-    return {
-      message,
     };
   }
 }

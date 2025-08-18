@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { IServiceResponse } from './common/interfaces';
+import { ApiResponse, ApiStatus } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-  getAppInfo(): IServiceResponse {
+  getAppInfo(): ApiResponse {
     return {
+      status: ApiStatus.SUCCESS,
       message: 'Broy NestJS Starter MVP is running successfully!',
       data: {
         name: 'Broy NestJS Starter MVP',

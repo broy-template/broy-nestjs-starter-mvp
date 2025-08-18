@@ -11,12 +11,12 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import {
   JwtPayload,
-  ServiceResponse,
+  SuccessResponse,
 } from '../../common/interfaces';
 import { plainToInstance } from 'class-transformer';
-import { UserDto } from 'src/common/dto/user.dto';
-import { AuthSessionDto } from './dto/auth-session.dto';
-import { TokensDto } from './dto/tokens-dto';
+import { UserRO } from 'src/common/dto/user.dto';
+import { AuthSessionRO } from './ro/auth-session.ro';
+import { TokensRO } from './ro/tokens-dto';
 
 @Injectable()
 export class AuthService {
@@ -68,13 +68,17 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: newUser.id }, data: { hashedRefreshToken: hashedRefreshToken } });
 
-    return ServiceResponse.single(plainToInstance(AuthSessionDto, {
-      user: plainToInstance(UserDto, newUser),
+    return SuccessResponse.single<AuthSessionRO>({
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt
+      },
       accessToken,
-      refreshToken: hashedRefreshToken,
-    }),
-      'Registrasi berhasil'
-    );
+      refreshToken: hashedRefreshToken
+    }, 'Registrasi berhasil');
   }
 
   /**
@@ -112,11 +116,18 @@ export class AuthService {
       }
     });
     this.logger.log(`User login: ${user.email}`);
-    return ServiceResponse.single(plainToInstance(AuthSessionDto, {
-      user: plainToInstance(UserDto, userDto),
-      accessToken,
-      refreshToken,
-    }),
+    return SuccessResponse.single<AuthSessionRO>(
+      {
+        user: {
+          id: userDto.id,
+          email: userDto.email,
+          role: userDto.role,
+          createdAt: userDto.createdAt,
+          updatedAt: userDto.updatedAt
+        },
+        accessToken,
+        refreshToken: hashedRefreshToken
+      },
       'Login berhasil'
     );
   }
@@ -140,10 +151,10 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: user.id }, data: { hashedRefreshToken: hashedRefreshToken } });
     this.logger.log(`Token akses diperbarui untuk user: ${user.email}`);
-    return ServiceResponse.single(plainToInstance(TokensDto, {
+    return SuccessResponse.single<TokensRO>({
       accessToken,
-      refreshToken,
-    }));
+      refreshToken: hashedRefreshToken,
+    });
   }
 
   /**
@@ -152,7 +163,7 @@ export class AuthService {
   public async logout(userId: string) {
     await this.prisma.user.update({ where: { id: userId }, data: { hashedRefreshToken: null } });
     this.logger.log(`User logout: ${userId}`);
-    return ServiceResponse.null('Logout berhasil');
+    return SuccessResponse.null('Logout berhasil');
   }
 
   /**
@@ -161,7 +172,7 @@ export class AuthService {
   public async deleteAccount(userId: string) {
     await this.prisma.user.delete({ where: { id: userId } });
     this.logger.log(`Akun user dihapus: ${userId}`);
-    return ServiceResponse.null('Akun berhasil dihapus');
+    return SuccessResponse.null('Akun berhasil dihapus');
   }
 
   /**

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ApiStatus } from './common/interfaces';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -17,6 +18,7 @@ describe('AppController', () => {
   describe('getAppInfo', () => {
     it('should return application info', () => {
       expect(appController.getAppInfo()).toEqual({
+        status: ApiStatus.SUCCESS,
         message: 'Broy NestJS Starter MVP is running successfully!',
         data: {
           name: 'Broy NestJS Starter MVP',

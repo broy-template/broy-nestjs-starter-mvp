@@ -26,11 +26,10 @@ import {
   ApiConflictResponse,
   ApiUnauthorizedResponse
 } from '../../common/interfaces';
-import { UserDto } from '../../common/dto/user.dto';
-import { AuthSessionDto } from './dto/auth-session.dto';
+import { UserRO } from '../../common/dto/user.dto';
+import { AuthSessionRO } from './ro/auth-session.ro';
 
 @ApiTags('Authentication')
-@ApiExtraModels(AuthSessionDto, UserDto)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -39,7 +38,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrasi pengguna baru' })
-  @ApiCreatedResponse('Pengguna berhasil didaftarkan', UserDto)
+  @ApiCreatedResponse('Pengguna berhasil didaftarkan')
   @ApiConflictResponse()
   @ApiAuthResponses()
   public async register(@Body() registerDto: RegisterDto) {
