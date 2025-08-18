@@ -1,4 +1,16 @@
 /**
+ * Copyright (c) 2025 Roy Aziz Barera
+ * 
+ * This software is proprietary and confidential.
+ * Unauthorized copying, distribution, or use is strictly prohibited.
+ * 
+ * @author Roy Aziz Barera <@royazizbarera>
+ * @github forscy
+ * @version 1.0.0
+ * @license MIT
+ */
+
+/**
  * File utama untuk bootstrap aplikasi NestJS.
  *
  * - Mengatur global prefix untuk semua endpoint API.
@@ -52,6 +64,10 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
+  // Fix for legacy route converter warning - serve static files with proper route pattern
+  const express = require('express');
+  app.use('/assets', express.static('public'));
+
   // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
@@ -85,7 +101,12 @@ async function bootstrap() {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+      customSiteTitle: 'Broy NestJS Starter MVP - API Documentation',
+    });
     
     logger.log(`📚 Swagger documentation available at /${apiPrefix}/docs`);
   }

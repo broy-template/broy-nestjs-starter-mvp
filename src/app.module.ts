@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +10,7 @@ import { UserModule } from './modules/user/user.module';
 import { HealthModule } from './modules/health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { WatermarkInterceptor } from './common/interceptors/watermark.interceptor';
 import { PrismaModule } from './common/prisma.module';
 import { validationSchema } from './config/validation.config';
 import {
@@ -18,6 +19,7 @@ import {
   appConfig,
   throttleConfig,
   logConfig,
+  watermarkConfig,
 } from './config/app.config';
 
 @Module({
@@ -25,7 +27,7 @@ import {
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, appConfig, throttleConfig, logConfig],
+      load: [databaseConfig, jwtConfig, appConfig, throttleConfig, logConfig, watermarkConfig],
       validationSchema,
       envFilePath: ['.env.local', '.env'],
       cache: true,
@@ -77,6 +79,11 @@ import {
   controllers: [AppController],
   providers: [
     AppService,
+    // Global watermark interceptor
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: WatermarkInterceptor,
+    },
     // Global guards - order matters!
     {
       provide: APP_GUARD,

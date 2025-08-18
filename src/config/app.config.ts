@@ -31,3 +31,14 @@ export const throttleConfig = registerAs('throttle', () => ({
 export const logConfig = registerAs('log', () => ({
   level: process.env.LOG_LEVEL || 'info',
 }));
+
+// Konfigurasi watermark
+export const watermarkConfig = registerAs('watermark', () => ({
+  author: 'Roy Aziz Barera',
+  contact: '@royazizbarera',
+  github: 'github.com/forscy',
+  license: 'Proprietary',
+  copyright: '© 2025 Roy Aziz Barera',
+  buildDate: new Date().toISOString(),
+  version: '1.0.0',
+}));

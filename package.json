@@ -1,8 +1,8 @@
 {
   "name": "broy-nestjs-starter-mvp",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "© 2025 Roy Aziz Barera - NestJS Starter MVP - Proprietary Software",
+  "author": "Roy Aziz Barera <@royazizbarera> (https://github.com/forscy)",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
