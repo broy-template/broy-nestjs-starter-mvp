@@ -6,7 +6,7 @@ import { ApiResponse } from '../../common/interfaces';
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async check() {
     const healthData = {
@@ -17,7 +17,7 @@ export class HealthService {
       environment: process.env.NODE_ENV || 'development',
       database: await this.checkDatabase(),
     };
-    this.logger.log('Health check completed');
+    this.logger.log('Pemeriksaan kesehatan selesai');
     return healthData;
   }
 
@@ -32,7 +32,7 @@ export class HealthService {
         latency,
       };
     } catch (error) {
-      this.logger.error('Database health check failed:', error);
+      this.logger.error('Pemeriksaan database gagal:', error);
       return {
         status: 'disconnected',
       };

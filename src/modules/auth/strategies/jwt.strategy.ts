@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     const secret = configService.get<string>('jwt.secret');
     if (!secret) {
-      throw new Error('JWT secret not found in configuration');
+      throw new Error('JWT secret tidak ditemukan di konfigurasi');
     }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -34,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Pengguna tidak ditemukan');
     }
 
     return {

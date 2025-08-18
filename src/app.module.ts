@@ -19,7 +19,6 @@ import {
   throttleConfig,
   logConfig,
 } from './config/app.config';
-import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
 
 @Module({
   imports: [

@@ -29,13 +29,18 @@ export class AuthService {
   ) { }
 
   // Di dalam AuthService
+  /**
+   * Registrasi user baru
+   */
   public async register(registerDto: RegisterDto) {
     const { email, password } = registerDto;
 
     // 1. Hash password
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 2. Langsung coba buat user baru
+    // Buat user baru
     const newUser = await this.prisma.user.create({
       data: {
         email,
@@ -51,9 +56,10 @@ export class AuthService {
       },
     });
 
-    this.logger.log(`New user registered: ${newUser.email}`);
+    this.logger.log(`User baru terdaftar: ${newUser.email}`);
 
     // 3. Buat access token
+    // Buat access token
     const { accessToken, refreshToken } = await this.generateTokens({
       email: newUser.email,
       sub: newUser.id,
@@ -71,15 +77,18 @@ export class AuthService {
     );
   }
 
+  /**
+   * Login user
+   */
   public async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new UnauthorizedException('Email atau password salah');
+      throw new UnauthorizedException('Email atau kata sandi salah');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Email atau password salah');
+      throw new UnauthorizedException('Email atau kata sandi salah');
     }
     const { accessToken, refreshToken } = await this.generateTokens({
       email: user.email,
@@ -102,7 +111,7 @@ export class AuthService {
         updatedAt: true
       }
     });
-    this.logger.log(`User logged in: ${user.email}`);
+    this.logger.log(`User login: ${user.email}`);
     return ServiceResponse.single(plainToInstance(AuthSessionDto, {
       user: plainToInstance(UserDto, userDto),
       accessToken,
@@ -112,13 +121,16 @@ export class AuthService {
     );
   }
 
+  /**
+   * Refresh token akses
+   */
   public async refreshToken(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, role: true },
     });
     if (!user) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException('Token tidak valid atau sudah kedaluwarsa');
     }
     const { accessToken, refreshToken } = await this.generateTokens({
       email: user.email,
@@ -127,26 +139,34 @@ export class AuthService {
     });
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: user.id }, data: { hashedRefreshToken: hashedRefreshToken } });
-    this.logger.log(`Access token refreshed for user: ${user.email}`);
+    this.logger.log(`Token akses diperbarui untuk user: ${user.email}`);
     return ServiceResponse.single(plainToInstance(TokensDto, {
       accessToken,
       refreshToken,
     }));
   }
 
+  /**
+   * Logout user
+   */
   public async logout(userId: string) {
     await this.prisma.user.update({ where: { id: userId }, data: { hashedRefreshToken: null } });
-    this.logger.log(`User logged out: ${userId}`);
+    this.logger.log(`User logout: ${userId}`);
     return ServiceResponse.null('Logout berhasil');
   }
 
-  // delete account
+  /**
+   * Hapus akun user
+   */
   public async deleteAccount(userId: string) {
     await this.prisma.user.delete({ where: { id: userId } });
-    this.logger.log(`User account deleted: ${userId}`);
+    this.logger.log(`Akun user dihapus: ${userId}`);
     return ServiceResponse.null('Akun berhasil dihapus');
   }
 
+  /**
+   * Generate access token dan refresh token
+   */
   private async generateTokens(payload: JwtPayload) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
