@@ -17,7 +17,6 @@ describe('AppController', () => {
   describe('getAppInfo', () => {
     it('should return application info', () => {
       expect(appController.getAppInfo()).toEqual({
-        status: 'success',
         message: 'Broy NestJS Starter MVP is running successfully!',
         data: {
           name: 'Broy NestJS Starter MVP',

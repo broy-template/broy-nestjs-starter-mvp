@@ -32,7 +32,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @Roles(Role.Admin)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new user (Admin only)' })
   @ApiResponse({
     status: 201,
@@ -47,7 +47,7 @@ export class UserController {
   }
 
   @Get()
-  @Roles(Role.Admin, Role.User)
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: 'Get all users with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
@@ -63,7 +63,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @Roles(Role.Admin, Role.User)
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -79,7 +79,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @Roles(Role.Admin, Role.User)
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: 'Update user (Admin or own profile)' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -108,7 +108,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Roles(Role.Admin)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete user (Admin only)' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({

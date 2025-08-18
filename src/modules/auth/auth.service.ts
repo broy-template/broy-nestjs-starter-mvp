@@ -65,9 +65,11 @@ export class AuthService {
       await this.prisma.user.update({ where: { id: user.id }, data: { refreshToken: hashedRefreshToken } });
       this.logger.log(`User logged in: ${user.email}`);
       return {
-        user: new UserEntity(user),
-        accessToken,
-        refreshToken,
+        data: {
+          user: new UserEntity(user),
+          accessToken,
+          refreshToken,
+        },
       };
     } catch (error) {
       this.logger.error(`Login failed: ${error.message}`);

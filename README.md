@@ -210,7 +210,7 @@ src/
 ### Authorization Levels
 - **Public** - No authentication required (`@Public()`)
 - **Authenticated** - Valid JWT required
-- **Role-Based** - Specific roles required (`@Roles(Role.Admin)`)
+- **Role-Based** - Specific roles required (`@Roles(Role.ADMIN)`)
 - **Resource Ownership** - Can only access own resources
 
 ## 🧪 Testing

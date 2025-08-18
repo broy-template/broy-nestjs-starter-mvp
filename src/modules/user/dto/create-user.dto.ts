@@ -4,26 +4,26 @@ import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 export class CreateUserDto {
   @ApiProperty({
     example: 'user@example.com',
-    description: 'User email address',
+    description: 'Alamat email pengguna',
   })
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmail({}, { message: 'Silakan masukkan alamat email yang valid' })
   email: string;
 
   @ApiProperty({
     example: 'John Doe',
-    description: 'User full name',
+    description: 'Nama lengkap pengguna',
     required: false,
   })
-  @IsString({ message: 'Name must be a string' })
+  @IsString({ message: 'Nama harus berupa string' })
   @IsOptional()
   name?: string;
 
   @ApiProperty({
     example: 'password123',
-    description: 'User password',
+    description: 'Kata sandi pengguna',
     minLength: 6,
   })
-  @IsString({ message: 'Password must be a string' })
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @IsString({ message: 'Kata sandi harus berupa string' })
+  @MinLength(6, { message: 'Kata sandi minimal terdiri dari 6 karakter' })
   password: string;
 }

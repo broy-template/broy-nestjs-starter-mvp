@@ -5,7 +5,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RootController } from './root.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { HealthModule } from './modules/health/health.module';
@@ -20,6 +19,7 @@ import {
   throttleConfig,
   logConfig,
 } from './config/app.config';
+import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -75,7 +75,7 @@ import {
     UserModule,
     HealthModule,
   ],
-  controllers: [RootController, AppController],
+  controllers: [AppController],
   providers: [
     AppService,
     // Global guards - order matters!
