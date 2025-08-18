@@ -1,36 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsEnum } from 'class-validator';
 import { Role } from '@prisma/client';
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsValidEmail, IsSecurePassword } from '../../../common/decorators/validation.decorator';
 
 export class CreateUserDto {
-  @ApiProperty({
-    example: 'user@example.com',
-    description: 'Alamat email pengguna',
-  })
-  @IsEmail({}, { message: 'Silakan masukkan alamat email yang valid' })
+  @IsValidEmail('Email pengguna', 'user@example.com')
   email: string;
 
+  @IsSecurePassword('Kata sandi pengguna')
+  password: string;
+
   @ApiProperty({
-    example: 'John Doe',
-    description: 'Nama lengkap pengguna',
+    description: 'Role pengguna',
+    enum: Role,
+    example: Role.USER,
     required: false,
   })
-  @IsString({ message: 'Nama harus berupa string' })
   @IsOptional()
-  name?: string;
-
-  @IsEnum(Role, {
-    message: 'Role harus berupa salah satu dari: USER, ADMIN',
-  })
-  @IsOptional()
+  @IsEnum(Role, { message: 'Role harus salah satu dari: USER, ADMIN' })
   role?: Role;
-
-  @ApiProperty({
-    example: 'password123',
-    description: 'Kata sandi pengguna',
-    minLength: 6,
-  })
-  @IsString({ message: 'Kata sandi harus berupa string' })
-  @MinLength(6, { message: 'Kata sandi minimal terdiri dari 6 karakter' })
-  password: string;
 }

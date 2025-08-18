@@ -28,7 +28,7 @@ import {
 } from '../../common/response/response.decorator';
 import { UserRO } from '../../common/dto/user.dto';
 import { AuthSessionRO } from './ro/auth-session.ro';
-import { TokensRO } from './ro/tokens-ro';
+import { TokensRO } from './ro/tokens.ro';
 
 @ApiTags('Authentication')
 @ApiExtraModels(UserRO, AuthSessionRO, TokensRO)

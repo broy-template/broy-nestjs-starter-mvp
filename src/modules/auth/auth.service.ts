@@ -16,7 +16,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { UserRO } from 'src/common/dto/user.dto';
 import { AuthSessionRO } from './ro/auth-session.ro';
-import { TokensRO } from './ro/tokens-ro';
+import { TokensRO } from './ro/tokens.ro';
 
 @Injectable()
 export class AuthService {

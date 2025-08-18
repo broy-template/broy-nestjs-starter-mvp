@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UserRO {
@@ -20,6 +20,13 @@ export class UserRO {
     example: Role.USER
   })
   role: Role;
+
+  @ApiProperty({
+    description: 'Status pengguna',
+    enum: UserStatus,
+    example: UserStatus.ACTIVE
+  })
+  status: UserStatus;
 
   @ApiProperty({
     description: 'Tanggal pembuatan akun',
