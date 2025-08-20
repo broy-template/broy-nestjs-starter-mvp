@@ -20,6 +20,7 @@ import {
   throttleConfig,
   logConfig,
   watermarkConfig,
+  swaggerConfig,
 } from './config/app.config';
 
 @Module({
@@ -27,7 +28,7 @@ import {
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, appConfig, throttleConfig, logConfig, watermarkConfig],
+      load: [databaseConfig, jwtConfig, appConfig, throttleConfig, logConfig, watermarkConfig, swaggerConfig],
       validationSchema,
       envFilePath: ['.env.local', '.env'],
       cache: true,

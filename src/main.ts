@@ -29,7 +29,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -37,6 +36,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-exception.filter';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -89,27 +89,7 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientExceptionFilter());
 
   // Swagger documentation
-  if (configService.get('app.nodeEnv') !== 'production') {
-    const config = new DocumentBuilder()
-      .setTitle('Broy NestJS Starter MVP')
-      .setDescription('A comprehensive NestJS starter template following best practices')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .addTag('Authentication', 'Authentication endpoints')
-      .addTag('Users', 'User management endpoints')
-      .addTag('Health', 'Health check endpoints')
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-      customSiteTitle: 'Broy NestJS Starter MVP - API Documentation',
-    });
-    
-    logger.log(`📚 Swagger documentation available at /${apiPrefix}/docs`);
-  }
+  setupSwagger(app);
 
   const port = configService.get('app.port');
   await app.listen(port);
