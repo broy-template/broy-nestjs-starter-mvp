@@ -81,7 +81,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
     new ClassSerializerInterceptor(reflector),
-    new ResponseTransformInterceptor(),
+    new ResponseTransformInterceptor(reflector),
   );
 
   // Global filters

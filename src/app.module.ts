@@ -8,12 +8,12 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { HealthModule } from './modules/health/health.module';
-import { FileModule } from './modules/files/file.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { WatermarkInterceptor } from './common/interceptors/watermark.interceptor';
 import { PrismaModule } from './common/prisma.module';
 import { validationSchema } from './config/validation.config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import {
   databaseConfig,
   jwtConfig,
@@ -23,6 +23,8 @@ import {
   watermarkConfig,
   swaggerConfig,
 } from './config/app.config';
+import { FilesModule } from './files/files.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -45,6 +47,11 @@ import {
           },
         ],
       }),
+    }),
+
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Path ke folder 'uploads'
+      serveRoot: `/${process.env.API_PREFIX}/uploads`, // Sajikan file di bawah path '/uploads'
     }),
 
     // Structured logging
@@ -77,7 +84,7 @@ import {
     AuthModule,
     UserModule,
     HealthModule,
-    FileModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

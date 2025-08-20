@@ -9,7 +9,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  UseGuards,
   UseInterceptors,
   UploadedFile,
   Logger
@@ -43,7 +42,6 @@ import { UserRO, UserProfileRO } from '../../common/dto/user.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../common/entities/user-payload.entity';
-import { SecureFileUploadService, type SecureMulterFile } from '../../common/services/secure-file-upload.service';
 import { Role } from '@prisma/client';
 
 @ApiTags('User')
@@ -55,7 +53,6 @@ export class UserController {
 
   constructor(
     private readonly userService: UserService,
-    private readonly secureFileService: SecureFileUploadService
   ) { }
 
   @Post()
@@ -176,89 +173,9 @@ export class UserController {
   @ApiBadRequestResponse()
   @ApiAuthResponses()
   async updateAvatar(
-    @UploadedFile() file: SecureMulterFile,
     @CurrentUser() currentUser: UserPayload,
   ) {
-    if (!file) {
-      throw new Error('Avatar file is required');
-    }
-
-    this.logger.log(`Avatar update attempt for user ${currentUser.id}`, {
-      targetUserId: currentUser.id,
-      requesterId: currentUser.id,
-      filename: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size
-    });
-
-    try {
-      // Check if user exists and get current avatar info
-      const existingUserResponse = await this.userService.findOne(currentUser.id);
-      const existingUser = existingUserResponse.data;
-
-      if (!existingUser) {
-        throw new Error('User not found');
-      }
-
-      // Permission check: users can only update their own avatar, or admin can update any
-      if (currentUser.role !== Role.ADMIN && currentUser.id !== currentUser.id) {
-        throw new Error('You can only update your own avatar');
-      }
-
-      // Upload new avatar file
-      const uploadResult = await this.secureFileService.uploadFile(file, currentUser.id);
-
-      // Generate avatar URL
-      const avatarUrl = `/files/download/${uploadResult.fileId}`;
-
-      // Update user profile with new avatar
-      const updatedUserResponse = await this.userService.updateAvatar(currentUser.id, {
-        avatarUrl,
-        fileId: uploadResult.fileId
-      });
-
-      // Delete old avatar file if exists
-      if (existingUser.profile?.avatarUrl) {
-        try {
-          // Extract file ID from old avatar URL
-          const oldFileIdMatch = existingUser.profile.avatarUrl.match(/\/files\/download\/([a-f0-9-]+)/);
-          if (oldFileIdMatch) {
-            const oldFileId = oldFileIdMatch[1];
-            await this.secureFileService.deleteFile(oldFileId, currentUser.id);
-            this.logger.log(`Old avatar file deleted: ${oldFileId}`);
-          }
-        } catch (error) {
-          // Log but don't fail the request if old file deletion fails
-          this.logger.warn(`Failed to delete old avatar file: ${error.message}`);
-        }
-      }
-
-      this.logger.log(`Avatar updated successfully for user ${currentUser.id}`, {
-        userId: currentUser.id,
-        fileId: uploadResult.fileId,
-        avatarUrl
-      });
-
-      return {
-        success: true,
-        message: 'Avatar updated successfully',
-        data: {
-          fileId: uploadResult.fileId,
-          avatarUrl,
-          originalName: uploadResult.originalName,
-          size: uploadResult.size,
-          uploadedAt: uploadResult.uploadedAt
-        }
-      };
-
-    } catch (error) {
-      this.logger.error(`Avatar update failed for user ${currentUser.id}`, {
-        userId: currentUser.id,
-        requesterId: currentUser.id,
-        error: error.message
-      });
-      throw error;
-    }
+    
   }
 
   @Delete(':id')

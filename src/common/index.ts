@@ -18,6 +18,7 @@ export * from './helpers/response.helper';
 export * from './decorators/validation.decorator';
 export * from './decorators/current-user.decorator';
 export * from './decorators/public.decorator';
+export * from './decorators/skip-response-transform.decorator';
 export * from './decorators/roles.decorator';
 
 // Export all common guards
