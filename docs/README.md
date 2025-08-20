@@ -1,23 +1,30 @@
 # Documentation Index
 
-Dokumentasi lengkap untuk Broy NestJS Starter MVP.
+Complete documentation for Broy NestJS Starter MVP.
 
 ## 📚 Available Documentation
 
 ### 🏗️ **Architecture & Setup**
-- [Implementation Examples](./implementation-example.md) - Contoh implementasi dan best practices
-- [Common Utilities](./common-utilities.md) - Utilities dan helpers yang tersedia
+- [Implementation Examples](./implementation-example.md) - Implementation examples and best practices
+- [Common Utilities](./common-utilities.md) - Available utilities and helpers
+- [Environment Configuration](./environment-configuration.md) - Complete guide to environment variables
 
 ### 🛠️ **Services Documentation**
-- [Services Overview](./services/README.md) - Overview semua services yang tersedia
-- [Time Service](./services/time-service.md) - Service untuk handling waktu dengan mock support
-- [Cache Service](./services/cache-service.md) - In-memory caching dengan TTL support
+- [Services Overview](./services/README.md) - Overview of all available services
+- [Time Service](./services/time-service.md) - Time handling service with mock support
+- [Cache Service](./services/cache-service.md) - In-memory caching with TTL support
 - [Email Service](./services/email-service.md) - Multi-provider email service
 
 ## 🚀 Quick Start Guides
 
 ### 1. Setup Development Environment
 ```bash
+# Copy environment file
+cp .env.example .env
+
+# Edit .env with your configuration
+# See: docs/environment-configuration.md
+
 # Windows
 npm run setup:dev
 

@@ -35,6 +35,8 @@
     "setup:dev": "scripts/setup-dev.bat",
     "setup:dev:unix": "chmod +x scripts/setup-dev.sh && scripts/setup-dev.sh",
     "generate:module": "scripts/generate-module.sh",
+    "env:validate": "node scripts/validate-env.js",
+    "env:check": "node scripts/validate-env.js",
     "clean": "rimraf dist coverage .nyc_output",
     "clean:install": "npm run clean && rm -rf node_modules package-lock.json && npm install",
     "prepare": "husky"
