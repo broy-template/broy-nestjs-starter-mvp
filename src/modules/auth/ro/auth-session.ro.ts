@@ -4,20 +4,20 @@ import { Type } from "class-transformer";
 
 export class AuthSessionRO {
   @ApiProperty({
-    description: 'Data pengguna yang login',
+    description: 'Logged in user data',
     type: UserRO
   })
   @Type(() => UserRO)
   user: UserRO;
 
   @ApiProperty({
-    description: 'Token akses untuk autentikasi',
+    description: 'Access token for authentication',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
   })
   accessToken: string;
 
   @ApiProperty({
-    description: 'Token untuk memperbarui access token',
+    description: 'Token to refresh access token',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
   })
   refreshToken: string;

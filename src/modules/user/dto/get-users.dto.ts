@@ -5,22 +5,22 @@ import { BaseQueryDto } from '../../../common/dto/query.dto';
 
 export class GetUsersDto extends BaseQueryDto {
   @ApiProperty({
-    description: 'Filter berdasarkan role',
+    description: 'Filter by role',
     enum: Role,
     example: Role.USER,
     required: false,
   })
   @IsOptional()
-  @IsEnum(Role, { message: 'Role harus salah satu dari: USER, ADMIN' })
+  @IsEnum(Role, { message: 'Role must be one of: USER, ADMIN' })
   role?: Role;
 
   @ApiProperty({
-    description: 'Filter berdasarkan status',
+    description: 'Filter by status',
     enum: UserStatus,
     example: UserStatus.ACTIVE,
     required: false,
   })
   @IsOptional()
-  @IsEnum(UserStatus, { message: 'Status harus salah satu dari: ACTIVE, INACTIVE, BANNED' })
+  @IsEnum(UserStatus, { message: 'Status must be one of: ACTIVE, INACTIVE, BANNED' })
   status?: UserStatus;
 }

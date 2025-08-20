@@ -28,9 +28,9 @@ export class AuthService {
     private configService: ConfigService,
   ) { }
 
-  // Di dalam AuthService
+  // Inside AuthService
   /**
-   * Registrasi user baru
+   * Register new user
    */
   public async register(registerDto: RegisterDto) {
     const { email, password } = registerDto;
@@ -39,8 +39,8 @@ export class AuthService {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 2. Langsung coba buat user baru
-    // Buat user baru
+    // 2. Try to create new user
+    // Create new user
     const newUser = await this.prisma.user.create({
       data: {
         email,
@@ -57,10 +57,10 @@ export class AuthService {
       },
     });
 
-    this.logger.log(`User baru terdaftar: ${newUser.email}`);
+    this.logger.log(`New user registered: ${newUser.email}`);
 
-    // 3. Buat access token
-    // Buat access token
+    // 3. Create access token
+    // Create access token
     const { accessToken, refreshToken } = await this.generateTokens({
       email: newUser.email,
       sub: newUser.id,
@@ -112,7 +112,7 @@ export class AuthService {
         updatedAt: true
       }
     });
-    this.logger.log(`User login: ${user.email}`);
+    this.logger.log(`User logged in: ${user.email}`);
     
     const authSession = plainToInstance(AuthSessionRO, {
       user: plainToInstance(UserRO, userDto),
@@ -120,11 +120,11 @@ export class AuthService {
       refreshToken: hashedRefreshToken
     });
 
-    return SuccessResponse.single<AuthSessionRO>(authSession, 'Login berhasil');
+    return SuccessResponse.single<AuthSessionRO>(authSession, 'Login successful');
   }
 
   /**
-   * Refresh token akses
+   * Refresh access token
    */
   public async refreshToken(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -132,7 +132,7 @@ export class AuthService {
       select: { id: true, email: true, role: true },
     });
     if (!user) {
-      throw new UnauthorizedException('Token tidak valid atau sudah kedaluwarsa');
+      throw new UnauthorizedException('Token is invalid or expired');
     }
     const { accessToken, refreshToken } = await this.generateTokens({
       email: user.email,
@@ -141,7 +141,7 @@ export class AuthService {
     });
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({ where: { id: user.id }, data: { hashedRefreshToken: hashedRefreshToken } });
-    this.logger.log(`Token akses diperbarui untuk user: ${user.email}`);
+    this.logger.log(`Access token refreshed for user: ${user.email}`);
     
     const tokens = plainToInstance(TokensRO, {
       accessToken,
@@ -156,8 +156,8 @@ export class AuthService {
    */
   public async logout(userId: string) {
     await this.prisma.user.update({ where: { id: userId }, data: { hashedRefreshToken: null } });
-    this.logger.log(`User logout: ${userId}`);
-    return SuccessResponse.null('Logout berhasil');
+    this.logger.log(`User logged out: ${userId}`);
+    return SuccessResponse.null('Logout successful');
   }
 
   /**

@@ -17,7 +17,7 @@ export class HealthService {
       environment: process.env.NODE_ENV || 'development',
       database: await this.checkDatabase(),
     };
-    this.logger.log('Pemeriksaan kesehatan selesai');
+    this.logger.log('Health check completed');
     return healthData;
   }
 
@@ -32,7 +32,7 @@ export class HealthService {
         latency,
       };
     } catch (error) {
-      this.logger.error('Pemeriksaan database gagal:', error);
+      this.logger.error('Database check failed:', error);
       return {
         status: 'disconnected',
       };

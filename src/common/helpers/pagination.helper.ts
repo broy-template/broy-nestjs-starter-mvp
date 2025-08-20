@@ -3,7 +3,7 @@
 import { PaginationInfo } from "../interfaces";
 
 
-// Impor interface PaginationInfo yang sudah kita buat
+// Import PaginationInfo interface that we created
 
 interface PaginationOptions {
   page: number;
@@ -17,13 +17,13 @@ export function createPaginationInfo(options: PaginationOptions): PaginationInfo
   // 1. Hitung total halaman
   const totalPages = Math.ceil(totalItems / limit);
 
-  // 2. Tentukan halaman sebelumnya
+  // 2. Determine previous page
   const previousPage = page > 1 ? page - 1 : null;
 
-  // 3. Tentukan halaman berikutnya
+  // 3. Determine next page
   const nextPage = page < totalPages ? page + 1 : null;
 
-  // 4. Kembalikan objek PaginationInfo yang lengkap
+  // 4. Return complete PaginationInfo object
   return {
     totalItems,
     itemsPerPage: limit,

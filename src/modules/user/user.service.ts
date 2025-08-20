@@ -16,24 +16,24 @@ export class UserService extends BaseService {
   }
 
   /**
-   * Membuat user baru
+   * Create new user
    */
   async create(createUserDto: CreateUserDto) {
     const { email, password, role } = createUserDto;
 
-    // Cek apakah email sudah ada
+    // Check if email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
-      throw new ConflictException('Email sudah terdaftar');
+      throw new ConflictException('Email already registered');
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Buat user baru
+    // Create new user
     const newUser = await this.prisma.user.create({
       data: {
         email,
@@ -50,17 +50,17 @@ export class UserService extends BaseService {
       },
     });
 
-    this.logOperation('Membuat user', `${newUser.email}`);
+    this.logOperation('Creating user', `${newUser.email}`);
 
     const userRO = plainToInstance(UserRO, newUser);
-    return SuccessResponse.single<UserRO>(userRO, 'User berhasil dibuat');
+    return SuccessResponse.single<UserRO>(userRO, 'User created successfully');
   }
 
   /**
-   * Mengambil semua user dengan paginasi dan filter
+   * Get all users with pagination and filters
    */
   async findAll(query: GetUsersDto) {
-    // Build additional where conditions untuk user-specific filters
+    // Build additional where conditions for user-specific filters
     const additionalWhere: any = {};
 
     if (query.role) {
@@ -84,27 +84,27 @@ export class UserService extends BaseService {
           createdAt: true,
           updatedAt: true,
         },
-        searchFields: ['email'], // Pencarian berdasarkan email
+        searchFields: ['email'], // Search by email
       }
     );
 
     const userROs = result.data.map(user => plainToInstance(UserRO, user));
     
-    this.logOperation('Mengambil users', `${result.data.length} dari ${result.totalItems} total`);
+    this.logOperation('Fetching users', `${result.data.length} of ${result.totalItems} total`);
 
-    return SuccessResponse.paginated<UserRO>(userROs, result.pagination, 'Data user berhasil diambil');
+    return SuccessResponse.paginated<UserRO>(userROs, result.pagination, 'User data retrieved successfully');
   }
 
   /**
-   * Mengambil user berdasarkan ID
+   * Get user by ID
    */
   async findOne(id: string) {
     if (!id) {
-      throw new BadRequestException('ID user harus diisi');
+      throw new BadRequestException('User ID is required');
     }
 
     if (!this.validateUUID(id)) {
-      throw new BadRequestException('Format ID user tidak valid');
+      throw new BadRequestException('Invalid user ID format');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -131,37 +131,37 @@ export class UserService extends BaseService {
     });
 
     if (!user) {
-      throw new NotFoundException('User tidak ditemukan');
+      throw new NotFoundException('User not found');
     }
 
-    this.logOperation('Mengambil user', user.email);
+    this.logOperation('Fetching user', user.email);
 
     const userRO = plainToInstance(UserRO, user);
-    return SuccessResponse.single<UserRO>(userRO, 'Data user berhasil diambil');
+    return SuccessResponse.single<UserRO>(userRO, 'User data retrieved successfully');
   }
 
   /**
-   * Update user berdasarkan ID
+   * Update user by ID
    */
   async update(id: string, updateUserDto: UpdateUserDto) {
     if (!id) {
-      throw new BadRequestException('ID user harus diisi');
+      throw new BadRequestException('User ID is required');
     }
 
     if (!this.validateUUID(id)) {
-      throw new BadRequestException('Format ID user tidak valid');
+      throw new BadRequestException('Invalid user ID format');
     }
 
-    // Cek apakah user ada
+    // Check if user exists
     const existingUser = await this.prisma.user.findUnique({
       where: { id },
     });
 
     if (!existingUser) {
-      throw new NotFoundException('User tidak ditemukan');
+      throw new NotFoundException('User not found');
     }
 
-    // Cek apakah email sudah digunakan user lain
+    // Check if email is already used by another user
     if (updateUserDto.email) {
       const emailExists = await this.prisma.user.findFirst({
         where: {
@@ -171,7 +171,7 @@ export class UserService extends BaseService {
       });
 
       if (emailExists) {
-        throw new ConflictException('Email sudah digunakan user lain');
+        throw new ConflictException('Email is already used by another user');
       }
     }
 
@@ -201,40 +201,40 @@ export class UserService extends BaseService {
       },
     });
 
-    this.logOperation('Update user', updatedUser.email);
+    this.logOperation('Updating user', updatedUser.email);
 
     const userRO = plainToInstance(UserRO, updatedUser);
-    return SuccessResponse.single<UserRO>(userRO, 'User berhasil diupdate');
+    return SuccessResponse.single<UserRO>(userRO, 'User updated successfully');
   }
 
   /**
-   * Hapus user berdasarkan ID
+   * Delete user by ID
    */
   async remove(id: string) {
     if (!id) {
-      throw new BadRequestException('ID user harus diisi');
+      throw new BadRequestException('User ID is required');
     }
 
     if (!this.validateUUID(id)) {
-      throw new BadRequestException('Format ID user tidak valid');
+      throw new BadRequestException('Invalid user ID format');
     }
 
-    // Cek apakah user ada
+    // Check if user exists
     const existingUser = await this.prisma.user.findUnique({
       where: { id },
     });
 
     if (!existingUser) {
-      throw new NotFoundException('User tidak ditemukan');
+      throw new NotFoundException('User not found');
     }
 
-    // Hapus user (cascade akan menghapus profile juga)
+    // Delete user (cascade will delete profile as well)
     await this.prisma.user.delete({
       where: { id },
     });
 
-    this.logOperation('Hapus user', existingUser.email);
+    this.logOperation('Deleting user', existingUser.email);
 
-    return SuccessResponse.deleted('User berhasil dihapus');
+    return SuccessResponse.deleted('User deleted successfully');
   }
 }

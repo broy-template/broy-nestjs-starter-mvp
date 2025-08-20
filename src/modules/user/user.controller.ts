@@ -45,8 +45,8 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Roles(Role.ADMIN) // Assuming Role.ADMIN is defined in your Role enum
-  @ApiOperation({ summary: 'Membuat pengguna baru' })
-  @ApiCreatedResponse('Pengguna berhasil dibuat', UserRO)
+  @ApiOperation({ summary: 'Create new user' })
+  @ApiCreatedResponse('User created successfully', UserRO)
   @ApiConflictResponse()
   @ApiBadRequestResponse()
   @ApiAuthResponses()
@@ -57,8 +57,8 @@ export class UserController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @Roles(Role.ADMIN) // Assuming Role.ADMIN is defined in your Role enum
-  @ApiOperation({ summary: 'Mengambil daftar pengguna dengan paginasi dan filter' })
-  @ApiPaginatedResponse('Data pengguna berhasil diambil', UserRO)
+  @ApiOperation({ summary: 'Get list of users with pagination and filters' })
+  @ApiPaginatedResponse('User data retrieved successfully', UserRO)
   @ApiBadRequestResponse()
   @ApiAuthResponses()
   findAll(@Query() query: GetUsersDto) {
@@ -68,13 +68,13 @@ export class UserController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @Roles(Role.ADMIN) // Assuming Role.ADMIN is defined in your Role enum
-  @ApiOperation({ summary: 'Mengambil detail pengguna berdasarkan ID' })
+  @ApiOperation({ summary: 'Get user details by ID' })
   @ApiParam({
     name: 'id',
-    description: 'ID unik pengguna',
+    description: 'Unique user ID',
     example: 'clh123abc456def789'
   })
-  @ApiSuccessResponse('Data pengguna berhasil diambil', UserRO)
+  @ApiSuccessResponse('User data retrieved successfully', UserRO)
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiAuthResponses()
@@ -85,13 +85,13 @@ export class UserController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @Roles(Role.ADMIN) // Assuming Role.ADMIN is defined in your Role enum
-  @ApiOperation({ summary: 'Memperbarui data pengguna' })
+  @ApiOperation({ summary: 'Update user data' })
   @ApiParam({
     name: 'id',
-    description: 'ID unik pengguna',
+    description: 'Unique user ID',
     example: 'clh123abc456def789'
   })
-  @ApiSuccessResponse('Pengguna berhasil diperbarui', UserRO)
+  @ApiSuccessResponse('User updated successfully', UserRO)
   @ApiNotFoundResponse()
   @ApiConflictResponse()
   @ApiBadRequestResponse()
@@ -103,13 +103,13 @@ export class UserController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @Roles(Role.ADMIN) // Assuming Role.ADMIN is defined in your Role enum
-  @ApiOperation({ summary: 'Menghapus pengguna' })
+  @ApiOperation({ summary: 'Delete user' })
   @ApiParam({
     name: 'id',
-    description: 'ID unik pengguna',
+    description: 'Unique user ID',
     example: 'clh123abc456def789'
   })
-  @ApiSuccessResponse('Pengguna berhasil dihapus')
+  @ApiSuccessResponse('User deleted successfully')
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiAuthResponses()
