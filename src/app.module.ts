@@ -25,6 +25,7 @@ import {
 } from './config/app.config';
 import { FilesModule } from './files/files.module';
 import { join } from 'path';
+import { TimeService } from './common/services/time.service';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { join } from 'path';
   controllers: [AppController],
   providers: [
     AppService,
+    TimeService,
     // Global watermark interceptor
     {
       provide: APP_INTERCEPTOR,

@@ -10,19 +10,20 @@ import {
   UseInterceptors,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import path, { extname } from 'path';
 import type { Response } from 'express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public, SkipResponseTransform } from 'src/common';
+import { ApiStatus, ErrorResponse, Public, SkipResponseTransform } from 'src/common';
 import { FilesService } from './files.service';
-import { 
-  FileUploadDto, 
-  FileUploadResponseDto, 
-  FileListResponseDto, 
-  FileDeleteResponseDto 
+import {
+  FileUploadDto,
+  FileUploadResponseDto,
+  FileListResponseDto,
+  FileDeleteResponseDto
 } from './dto/file-upload.dto';
 
 @ApiTags('Files')
@@ -30,73 +31,60 @@ import {
 export class FilesController {
   private readonly logger = new Logger(FilesController.name);
 
-  constructor(private readonly filesService: FilesService) {}
-  
-  @Post('upload')
-  @ApiOperation({ summary: 'Upload a file' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: FileUploadDto })
-  @Public()
-  @ApiResponse({ status: 201, description: 'File berhasil diunggah!', type: FileUploadResponseDto })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads', // Tentukan folder penyimpanan
-        filename: (req, file, callback) => {
-          // Buat nama file yang unik
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          const filename = `${uniqueSuffix}${ext}`;
-          callback(null, filename);
-        },
-      }),
-    }),
-  )
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return await this.filesService.uploadFile(file);
-  }
+  constructor(private readonly filesService: FilesService) { }
 
-  @Get('download/:filename')
-  @ApiOperation({ summary: 'Download a file' })
-  @ApiResponse({ status: 200, description: 'File berhasil didownload!' })
-  @ApiResponse({ status: 404, description: 'File tidak ditemukan!' })
+  @Get('view/public/:subfolder/:filename')
   @Public()
-  @SkipResponseTransform()
-  async downloadFile(@Param('filename') filename: string, @Res({ passthrough: false }) res: Response) {
-    const { stream, exists } = await this.filesService.getFileStream(filename);
-    
+  @ApiOperation({ summary: 'View a public file from a subfolder' })
+  @ApiResponse({ status: 200, description: 'File found and displayed.' })
+  @ApiResponse({ status: 404, description: 'File not found.' })
+  async viewPublicFile(
+    @Param('subfolder') subfolder: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    // Kita panggil service yang sama
+    const { exists, stream, fileSize, mimeType } = await this.filesService.getFileStream(filename, path.join('public', subfolder));
+
+
     if (!exists || !stream) {
-      res.status(404).json({
-        status: 'failed',
-        message: 'File tidak ditemukan',
-        statusCode: 404
-      });
-      return;
+      throw new NotFoundException('File not found');
     }
 
-    // Set headers untuk download
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
 
-    // Stream file ke response
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', fileSize);
+    // Gunakan 'inline' untuk menampilkan file di browser
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
     stream.pipe(res);
   }
 
-  @Get('list')
-  @ApiOperation({ summary: 'List all uploaded files' })
-  @ApiResponse({ status: 200, description: 'List file berhasil diambil!', type: FileListResponseDto })
-  @Public()
-  async listFiles() {
-    return await this.filesService.listFiles();
+
+  @Get('view/private/:subfolder/:filename')
+  @ApiOperation({ summary: 'View a private file from a subfolder' })
+  @ApiResponse({ status: 200, description: 'File found and displayed.' })
+  @ApiResponse({ status: 404, description: 'File not found.' })
+  async viewPrivateFile(
+    @Param('subfolder') subfolder: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    // Kita panggil service yang sama
+    const { exists, stream, fileSize, mimeType } = await this.filesService.getFileStream(filename, path.join('public', subfolder));
+
+
+    if (!exists || !stream) {
+      throw new NotFoundException('File not found');
+    }
+
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', fileSize);
+    // Gunakan 'inline' untuk menampilkan file di browser
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+    stream.pipe(res);
   }
 
-  @Delete('delete/:filename')
-  @ApiOperation({ summary: 'Delete a file' })
-  @ApiResponse({ status: 200, description: 'File berhasil dihapus!', type: FileDeleteResponseDto })
-  @ApiResponse({ status: 404, description: 'File tidak ditemukan!' })
-  @Public()
-  async deleteFile(@Param('filename') filename: string) {
-    return await this.filesService.deleteFile(filename);
-  }
 }

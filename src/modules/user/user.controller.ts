@@ -43,6 +43,11 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../common/entities/user-payload.entity';
 import { Role } from '@prisma/client';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { FilesService } from 'src/files/files.service';
+import { ApiStatus } from 'src/common';
 
 @ApiTags('User')
 @ApiExtraModels(UserRO, UpdateAvatarResponseDto)
@@ -53,6 +58,7 @@ export class UserController {
 
   constructor(
     private readonly userService: UserService,
+    private readonly filesService: FilesService,
   ) { }
 
   @Post()
@@ -134,7 +140,7 @@ export class UserController {
     },
     fileFilter: (req, file, cb) => {
       // Only allow image files for avatars
-      const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedMimes = ['image/jpeg', 'image/png'];
 
       if (!allowedMimes.includes(file.mimetype)) {
         return cb(new Error(`Avatar must be an image file. Allowed types: ${allowedMimes.join(', ')}`), false);
@@ -142,13 +148,22 @@ export class UserController {
 
       cb(null, true);
     },
+    storage: diskStorage({
+      destination: './uploads/public/avatars', // Store avatars in a specific folder
+      filename: (req, file, cb) => {
+        const uniqueSuffix = `${uuidv4()}`;
+        const ext = extname(file.originalname);
+        const filename = `${uniqueSuffix}${ext}`;
+        cb(null, filename);
+      },
+    }),
   }))
   @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 avatar updates per minute
   @ApiOperation({
     summary: '[OWNER/ADMIN] Update user avatar',
     description: `**[OWNER/ADMIN]** Upload and update user avatar image. 
 
-**Access Control:**
+    **Access Control:**
 - Users can only update their own avatar
 - Administrators can update any user's avatar
 
@@ -174,9 +189,22 @@ export class UserController {
   @ApiAuthResponses()
   async updateAvatar(
     @CurrentUser() currentUser: UserPayload,
+    @UploadedFile() file: Express.Multer.File
   ) {
     
+    const uploadFileResult = await this.filesService.uploadFile(file);
+    
+    if (uploadFileResult.status !== ApiStatus.SUCCESS || !uploadFileResult.data) {
+      throw new Error('Upload file gagal');
+    }
+    
+    const publicPath = `/public/avatars/${uploadFileResult.data.filename}`;
+    return this.userService.updateAvatar(
+      currentUser.id,
+      publicPath,
+    );
   }
+
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)

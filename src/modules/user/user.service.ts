@@ -241,7 +241,7 @@ export class UserService extends BaseService {
   /**
    * Update user avatar
    */
-  async updateAvatar(id: string, avatarData: { avatarUrl: string; fileId: string }) {
+  async updateAvatar(id: string, filePath: string) {
     if (!id) {
       throw new BadRequestException('User ID is required');
     }
@@ -268,10 +268,10 @@ export class UserService extends BaseService {
         profile: {
           upsert: {
             create: {
-              avatarUrl: avatarData.avatarUrl,
+              avatarUrl: filePath,
             },
             update: {
-              avatarUrl: avatarData.avatarUrl,
+              avatarUrl: filePath,
             },
           },
         },
@@ -297,7 +297,7 @@ export class UserService extends BaseService {
       },
     });
 
-    this.logOperation('Updating user avatar', `${user.email} - FileID: ${avatarData.fileId}`);
+    this.logOperation('Updating user avatar', `${user.email} - FileID: ${filePath}`);
 
     const userRO = plainToInstance(UserRO, updatedUser);
     return SuccessResponse.single<UserRO>(userRO, 'Avatar updated successfully');
