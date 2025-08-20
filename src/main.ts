@@ -40,7 +40,7 @@ import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  
+
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
@@ -54,7 +54,7 @@ async function bootstrap() {
 
   // Security
   app.use(helmet());
-  
+
   // CORS
   const corsOrigins = configService.get('app.corsOrigins');
   app.enableCors({
@@ -88,12 +88,12 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalFilters(new PrismaClientExceptionFilter());
 
-  // Swagger documentation
-  setupSwagger(app);
-
   const port = configService.get('app.port');
   await app.listen(port);
 
+
+  // Swagger documentation
+  setupSwagger(app);
   logger.log(`🚀 Application is running on: http://localhost:${port}/${apiPrefix}`);
   logger.log(`🔍 Health check available at: http://localhost:${port}/${apiPrefix}/health`);
 }
