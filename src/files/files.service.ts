@@ -15,6 +15,8 @@ import { lookup as getType } from 'mime-types'; // <-- Import library mime-types
 export class FilesService {
   private readonly logger = new Logger(FilesService.name);
   private readonly uploadsPath = join(process.cwd(), 'uploads');
+  private readonly uploadsPrivatePath = join(process.cwd(), 'uploads/private');
+  private readonly uploadsPublicPath = join(process.cwd(), 'uploads/public');
 
   async uploadFile(file: Express.Multer.File): Promise<ApiResponse<FileUploadResponseDto>> {
     try {
@@ -39,6 +41,15 @@ export class FilesService {
       this.logger.error(`Error uploading file: ${error.message}`);
       throw new HttpException('Error while uploading file', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  // get file public
+  async getPublicFileStream(filename: string): Promise<{ stream: NodeJS.ReadableStream | null; exists: boolean; fileSize: number, mimeType: string }> {
+    return this.getFileStream(filename, this.uploadsPublicPath);
+  }
+
+  async getPrivateFileStream(filename: string): Promise<{ stream: NodeJS.ReadableStream | null; exists: boolean; fileSize: number, mimeType: string }> {
+    return this.getFileStream(filename, this.uploadsPrivatePath);
   }
 
   async getFileStream(filename: string, subfolder: string = ''): Promise<{ stream: NodeJS.ReadableStream | null; exists: boolean; fileSize: number, mimeType: string }> {
