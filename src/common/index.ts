@@ -4,6 +4,10 @@ export * from './dto/user.dto';
 
 // Export all common services
 export * from './services/base.service';
+export * from './services/time.service';
+export * from './services/cache.service';
+export * from './services/email.service';
+export * from './services/file-upload.service';
 
 // Export all common helpers
 export * from './helpers/pagination.helper';
