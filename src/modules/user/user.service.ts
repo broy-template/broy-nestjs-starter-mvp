@@ -237,4 +237,69 @@ export class UserService extends BaseService {
 
     return SuccessResponse.deleted('User deleted successfully');
   }
+
+  /**
+   * Update user avatar
+   */
+  async updateAvatar(id: string, avatarData: { avatarUrl: string; fileId: string }) {
+    if (!id) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    if (!this.validateUUID(id)) {
+      throw new BadRequestException('Invalid user ID format');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        profile: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Update or create user profile with new avatar
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: {
+        profile: {
+          upsert: {
+            create: {
+              avatarUrl: avatarData.avatarUrl,
+            },
+            update: {
+              avatarUrl: avatarData.avatarUrl,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            bio: true,
+            avatarUrl: true,
+            phoneNumber: true,
+            birthDate: true,
+          },
+        },
+      },
+    });
+
+    this.logOperation('Updating user avatar', `${user.email} - FileID: ${avatarData.fileId}`);
+
+    const userRO = plainToInstance(UserRO, updatedUser);
+    return SuccessResponse.single<UserRO>(userRO, 'Avatar updated successfully');
+  }
 }

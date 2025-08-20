@@ -20,17 +20,12 @@ export function setupSwagger(app: INestApplication): void {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
+        name: 'Authorization',
+        description: 'Enter JWT token (without Bearer prefix)',
         in: 'header',
       },
-      'JWT-auth',
+      'bearer', // This should match @ApiBearerAuth() in controllers
     )
-    .addTag('Auth', 'Authentication endpoints')
-    .addTag('Users', 'User management endpoints')
-    .addTag('User Profile', 'User profile management endpoints')
-    .addTag('Health', 'Health check endpoints')
-    .addTag('Files', 'File upload and management endpoints')
     .addServer('http://localhost:3000', 'Development server')
     .addServer('https://api.yourdomain.com', 'Production server')
     .build();

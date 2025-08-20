@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { HealthModule } from './modules/health/health.module';
+import { FileModule } from './modules/files/file.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { WatermarkInterceptor } from './common/interceptors/watermark.interceptor';
@@ -76,6 +77,7 @@ import {
     AuthModule,
     UserModule,
     HealthModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [

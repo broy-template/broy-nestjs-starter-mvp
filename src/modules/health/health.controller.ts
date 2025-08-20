@@ -10,7 +10,7 @@ export class HealthController {
 
   @Public()
   @Get()
-  @ApiOperation({ summary: 'Check application health' })
+  @ApiOperation({ summary: '[PUBLIC] Check application health', description: '**[PUBLIC ACCESS]** Check the health status of the application and its dependencies. No authentication required.' })
   @ApiResponse({
     status: 200,
     description: 'Application is healthy',
