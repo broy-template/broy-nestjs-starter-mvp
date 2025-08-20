@@ -3,48 +3,75 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+// Sample data for seeding
+const sampleUsers = [
+  {
+    email: 'admin@starter.com',
+    password: 'admin123',
+    role: 'ADMIN',
+    profile: {
+      firstName: 'Admin',
+      lastName: 'User',
+      bio: 'System Administrator',
+    },
+  },
+  {
+    email: 'john.doe@starter.com',
+    password: 'password123',
+    role: 'USER',
+    profile: {
+      firstName: 'John',
+      lastName: 'Doe',
+      bio: 'Software Developer',
+      phoneNumber: '+1234567890',
+    },
+  },
+  {
+    email: 'jane.smith@starter.com',
+    password: 'password123',
+    role: 'USER',
+    profile: {
+      firstName: 'Jane',
+      lastName: 'Smith',
+      bio: 'Product Manager',
+      phoneNumber: '+1234567891',
+    },
+  },
+];
+
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // Hash password untuk admin
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  // Clear existing data (optional, use with caution)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🧹 Cleaning existing data...');
+    await prisma.userProfile.deleteMany();
+    await prisma.user.deleteMany();
+  }
 
-  // Buat user admin default
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@starter.com' },
-    update: {},
-    create: {
-      email: 'admin@starter.com',
-      password: hashedPassword,
-      role: 'ADMIN',
-    },
-  });
-
-  console.log('✅ Admin user created:', { id: admin.id, email: admin.email });
-
-  // Buat beberapa user biasa untuk testing
-  const users = await Promise.all([
-    prisma.user.upsert({
-      where: { email: 'user1@starter.com' },
+  // Create users with profiles
+  for (const userData of sampleUsers) {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
       update: {},
       create: {
-        email: 'user1@starter.com',
-        password: await bcrypt.hash('password123', 10),
-        role: 'USER',
+        email: userData.email,
+        password: hashedPassword,
+        role: userData.role as any,
+        profile: {
+          create: userData.profile,
+        },
       },
-    }),
-    prisma.user.upsert({
-      where: { email: 'user2@starter.com' },
-      update: {},
-      create: {
-        email: 'user2@starter.com',
-        password: await bcrypt.hash('password123', 10),
-        role: 'USER',
+      include: {
+        profile: true,
       },
-    }),
-  ]);
+    });
 
-  console.log('✅ Test users created:', users.length);
+    console.log(`✅ User created: ${user.email} (${user.role})`);
+  }
+
   console.log('🎉 Database seeding completed!');
 }
 
